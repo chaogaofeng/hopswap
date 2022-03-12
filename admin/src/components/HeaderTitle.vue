@@ -32,7 +32,7 @@ export default {};
   justify-content: space-between;
   box-shadow: 0px 7px 16px 0px rgba(0, 0, 0, 0.09);
   .logo {
-    width: 120px;
+    width: 159px;
     display: block;
     img{
       width: 100%;

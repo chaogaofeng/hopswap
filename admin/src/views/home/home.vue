@@ -7,56 +7,64 @@
         <span>共需兑换数量：{{ infos.source_value }}</span>
         <span>已兑换地址：{{ infos.target_address_cnt }}</span>
         <span>已兑换数量：{{ infos.target_value }}</span>
-        <span>待兑换数量：{{ infos.done_source_value }}</span>
+        <span>待兑换数量：{{ infos.left_target_value }}</span>
         <span>黑名单数量：{{ infos.disable_address_cnt }}</span>
       </div>
       <div class="table">
-        <div class="toolbar">
-          <div class="left">
-            <div class="select">
-              <span>ETH地址：</span>
-              <div class="ipt">
-                <el-input v-model="ethAddress" placeholder="请输入"></el-input>
-              </div>
-            </div>
-            <div class="select">
-              <span>BSC地址：</span>
-              <div class="ipt">
-                <el-input v-model="bscAddress" placeholder="请输入"></el-input>
-              </div>
-            </div>
-            <div class="btn">
-              <el-button @click="search" type="primary">查询</el-button>
-              <el-button @click="reset">重置</el-button>
-            </div>
-          </div>
+        <div class="exchange">
           <div class="box">
-            <div class="btn">
+            <div class="btn right">
               <el-button @click="allExchangeFlag = true" type="primary"
                 >全兑换</el-button
               >
               <el-button @click="allAirdropFlag = true">全空投</el-button>
             </div>
             <div class="btn">
-              <el-button @click="batchChangeFlag = true" type="primary"
+              <el-button
+                :disabled="selectionArr.length == 0"
+                @click="batchChangeFlag = true"
+                type="primary"
                 >批量兑换</el-button
               >
-              <el-button @click="batchAirdropFlag = true">批量空投</el-button>
+              <el-button
+                :disabled="selectionArr.length == 0"
+                @click="batchAirdropFlag = true"
+                >批量空投</el-button
+              >
+            </div>
+          </div>
+          <div class="box">
+            <div class="btn">
+              <el-button @click="impFlag = true" type="primary"
+                >导入白名单</el-button
+              >
+            </div>
+            <div class="btn left">
+              <el-button @click="deployFlag = true" type="primary"
+                >部署合约</el-button
+              >
             </div>
           </div>
         </div>
-        <div class="exchange">
-          <div class="btn">
-            <el-button @click="deployFlag = true" type="primary"
-              >部署合约</el-button
-            >
+        <div class="toolbar">
+          <div class="select">
+            <span>ETH地址：</span>
+            <div class="ipt">
+              <el-input v-model="ethAddress" placeholder="请输入"></el-input>
+            </div>
+          </div>
+          <div class="select">
+            <span>BSC地址：</span>
+            <div class="ipt">
+              <el-input v-model="bscAddress" placeholder="请输入"></el-input>
+            </div>
           </div>
           <div class="btn">
-            <el-button @click="impFlag = true" type="primary"
-              >导入白名单</el-button
-            >
+            <el-button @click="search" type="primary">查询</el-button>
+            <el-button @click="reset">重置</el-button>
           </div>
         </div>
+
         <div class="content">
           <el-tabs v-model="activeName" @tab-click="handleClick">
             <el-tab-pane class="menu-title" label="白名单" name="white">
@@ -150,7 +158,13 @@
                         >兑换</span
                       >
                       <span v-else>兑换</span>
-                      <span class="blue" @click="airdrop(scope.row)">空投</span>
+                      <span
+                        v-if="scope.row.target_address"
+                        class="blue"
+                        @click="airdrop(scope.row)"
+                        >空投</span
+                      >
+                      <span v-else>空投</span>
                       <span class="blue" @click="detaile(scope.row)">详情</span>
                     </div>
                   </template>
@@ -246,9 +260,9 @@
                 <el-table-column label="状态">
                   <template slot-scope="scope">
                     <span v-if="scope.row.status == 1">已提交</span>
-                    <span v-if="scope.row.status == 2">未提交</span>
+                    <span v-if="scope.row.status == 2">未完成</span>
                     <span v-if="scope.row.status == 3">已完成</span>
-                    <span v-if="scope.row.status == 4">未完成</span>
+                    <span v-if="scope.row.status == 4">未提交</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="操作">
@@ -261,7 +275,13 @@
                         >兑换</span
                       >
                       <span v-else>兑换</span>
-                      <span class="blue" @click="airdrop(scope.row)">空投</span>
+                      <span
+                        v-if="scope.row.target_address"
+                        class="blue"
+                        @click="airdrop(scope.row)"
+                        >空投</span
+                      >
+                      <span v-else>空投</span>
                       <span class="blue" @click="detaile(scope.row)">详情</span>
                     </div>
                   </template>
@@ -299,6 +319,8 @@
             type="number"
             v-model="exchangeNum"
             placeholder="请输入"
+            @change="numChange"
+            @input="numChange"
           ></el-input>
         </div>
       </div>
@@ -447,7 +469,7 @@
       </div>
       <div class="center">
         <p>注意：</p>
-        <p>请确实HOP-BEP20合约是否要在BSC网络部署。</p>
+        <p>请确认HOP-BEP20合约是否要在BSC网络部署。</p>
       </div>
       <div class="bottom">
         <span @click="deployFlag = false">取消</span>
@@ -530,20 +552,48 @@ export default {
       uploadUrl: "", //上传地址
       uploadHeaders: {}, //上传文件头
       fileList: [], //白名单文件
+      itvFlag: true, //定时器开关
+      sto: null, //定时器
+      autoSto: null, //自动定时器
+      aaa: 333,
     };
   },
   components: {
     HeaderTitle,
   },
   created() {
-    this.uploadUrl = `http://152.32.210.47:8083${api.upload}`;
+    this.uploadUrl = `http://152.32.210.47:8083${api.upload}?decimal=true`;
     this.uploadHeaders = {
       authorization: localStorage.token,
     };
-    this.address();
-    this.getInfo();
+    this.autoRefrush();
+  },
+  watch: {
+    itvFlag(val) {
+      this.autoRefrush();
+    },
+  },
+  mounted() {
+    window.addEventListener("click", this.clickOther);
+  },
+  beforeDestroy() {
+    this.itvFlag = false;
+    window.removeEventListener("click", this.clickOther);
   },
   methods: {
+    numChange(e){
+      if(Number(e)>=this.exchangeData.left_target_amount){
+        this.exchangeNum = this.exchangeData.left_target_amount
+      }
+    },
+    clickOther() {
+      this.itvFlag = false;
+      clearTimeout(this.sto);
+      this.sto = null;
+      this.sto = setTimeout(() => {
+        this.itvFlag = true;
+      }, 15000);
+    },
     handleExceed(files, fileList) {
       this.$message.warning("最多上传一个文件");
     },
@@ -574,47 +624,64 @@ export default {
       this.impFlag = false;
       this.$message(e.detail);
     },
-    getInfo() {
-      //兑换信息
-      this.$http({
-        method: "get",
-        url: api.info,
-      }).then((rel) => {
-        if (rel.code == 200) {
-          this.infos = rel.data;
-        } else {
-          this.$message({
-            message: rel.detail,
-            type: "error",
-          });
-        }
+    async autoRefrush() {
+      if (this.itvFlag) {
+        await Promise.all([this.getInfo(), this.address()]);
+        this.autoSto = setTimeout(() => {
+          this.autoRefrush();
+        }, 4000);
+      } else {
+        clearTimeout(this.autoSto);
+        this.autoSto = null;
+      }
+    },
+    async getInfo() {
+      return new Promise((resolve, reject) => {
+        //兑换信息
+        this.$http({
+          method: "get",
+          url: api.info,
+        }).then((rel) => {
+          if (rel.code == 200) {
+            this.infos = rel.data;
+          } else {
+            this.$message({
+              message: rel.detail,
+              type: "error",
+            });
+          }
+          resolve();
+        });
       });
     },
     address() {
-      let page_num = this.disable ? this.blackPageNo : this.whitePageNo;
-      let pageSize = this.disable ? this.blackPageSize : this.whitePageSize;
-      //兑换列表
-      this.$http({
-        method: "get",
-        url: api.address,
-        params: {
-          source: this.ethAddress,
-          target: this.bscAddress,
-          page_num: page_num,
-          page_size: pageSize,
-          disable: this.disable,
-        },
-      }).then((rel) => {
-        if (rel.code == 200) {
-          this.total = rel.data.total;
-          this.tables = rel.data.items;
+      return new Promise((resolve, reject) => {
+        let page_num = this.disable ? this.blackPageNo : this.whitePageNo;
+        let pageSize = this.disable ? this.blackPageSize : this.whitePageSize;
+        //兑换列表
+        this.$http({
+          method: "get",
+          url: api.address,
+          params: {
+            source: this.ethAddress,
+            target: this.bscAddress,
+            page_num: page_num,
+            page_size: pageSize,
+            disable: this.disable,
+          },
+        }).then((rel) => {
           this.tableLoading = false;
-        } else {
-          this.$message({
-            message: rel.detail,
-            type: "error",
-          });
-        }
+          if (rel.code == 200) {
+            this.total = rel.data.total;
+            this.tables = rel.data.items;
+          } else {
+            this.$message({
+              message: rel.detail,
+              type: "error",
+            });
+          }
+          resolve();
+        });
       });
     },
     search() {
@@ -631,6 +698,7 @@ export default {
     },
     exchange(e) {
       this.exchangeData = e;
+      this.exchangeNum = e.left_target_amount;
       this.exchangeFlag = true;
     },
     airdropSubmit() {
@@ -704,6 +772,7 @@ export default {
         method: "get",
         url: api.swapall,
       }).then((rel) => {
+        this.tableLoading = false;
         if (rel.code == 200) {
           this.$message({
             message: "兑换成功",
@@ -732,6 +801,7 @@ export default {
           },
         }).then((rel) => {
           this.allAirdropNum = "";
+          this.tableLoading = false;
           if (rel.code == 200) {
             this.$message({
               message: "空投成功",
@@ -749,12 +819,14 @@ export default {
       }
     },
     batchChangeSubmit() {
+      //批量兑换
       let flag = true;
       this.selectionArr.forEach((val) => {
         if (val.left_target_amount == 0) {
           flag = false;
         }
       });
+      this.batchChangeFlag = false;
       if (this.selectionArr.length > 0 && flag) {
         let address = "";
         this.selectionArr.forEach((val) => {
@@ -762,12 +834,12 @@ export default {
         });
         address = address.slice(0, -1);
         this.tableLoading = true;
-        //批量兑换
-        this.batchChangeFlag = false;
+
         this.$http({
           method: "get",
           url: `${api.swap}?${address}`,
         }).then((rel) => {
+          this.tableLoading = false;
           if (rel.code == 200) {
             this.$message({
               message: "批量兑换成功",
@@ -783,41 +855,51 @@ export default {
           }
         });
       } else {
-        this.$message("未选择兑换项或待兑换数量为0");
+        this.$message("所选项存在待兑换数量为0");
       }
     },
     batchAirdropSubmit() {
       //批量空投
-      if (this.selectionArr.length > 0) {
-        let address = "";
-        this.selectionArr.forEach((val) => {
-          address = address + "address=" + val.source_address + "&";
-        });
-        address = address.slice(0, -1);
-        this.tableLoading = true;
-        //批量兑换
-        this.batchAirdropFlag = false;
-        this.$http({
-          method: "get",
-          url: `${api.airdrop}?${address}&value=${this.batchAirdropNum}`,
-        }).then((rel) => {
-          if (rel.code == 200) {
-            this.batchAirdropNum = "";
-            this.$message({
-              message: "批量空投成功",
-              type: "success",
-            });
-            this.address();
-            this.getInfo();
-          } else {
-            this.$message({
-              message: rel.detail,
-              type: "error",
-            });
-          }
-        });
+      let flag = true;
+      let address = "";
+      this.selectionArr.forEach((val) => {
+        if (
+          val.target_address == "" ||
+          val.target_address == null ||
+          val.target_address == undefined
+        ) {
+          flag = false;
+        }
+        address = address + "address=" + val.source_address + "&";
+      });
+      address = address.slice(0, -1);
+      this.batchAirdropFlag = false;
+      if (flag) {
+        if (this.batchAirdropNum > 0) {
+          this.tableLoading = true;
+          this.$http({
+            method: "get",
+            url: `${api.airdrop}?${address}&value=${this.batchAirdropNum}`,
+          }).then((rel) => {
+            this.tableLoading = false;
+            if (rel.code == 200) {
+              this.batchAirdropNum = "";
+              this.$message({
+                message: "批量空投成功",
+                type: "success",
+              });
+              this.address();
+              this.getInfo();
+            } else {
+              this.$message({
+                message: rel.detail,
+                type: "error",
+              });
+            }
+          });
+        }
       } else {
-        this.$message("请选择空投项");
+        this.$message("所选项存在BSC地址为空");
       }
     },
     detaile(e) {
@@ -883,15 +965,21 @@ export default {
   .datas {
     background: #fff;
     border-radius: 5px;
-    padding: 30px;
-    display: flex;
-    align-items: center;
+    padding: 30px 35px;
+    overflow: hidden;
     margin-bottom: 30px;
     font-weight: bold;
     span {
       font-size: 14px;
       color: #000;
-      margin-right: 8%;
+      margin-right: 5%;
+      word-break: break-word;
+      max-width: 12.5%;
+      float: left;
+      min-width: 10%;
+    }
+    span:last-child {
+      margin-right: 0;
     }
   }
 }
@@ -904,10 +992,9 @@ export default {
     text-align: right;
   }
   .toolbar {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     .select {
       margin-right: 30px;
       display: flex;
@@ -921,16 +1008,6 @@ export default {
         width: 300px;
       }
     }
-    .left {
-      display: flex;
-      align-items: center;
-    }
-    .box {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
     .btn {
       margin-left: 30px;
     }
@@ -938,20 +1015,25 @@ export default {
   .exchange {
     display: flex;
     align-items: center;
-    margin-bottom: 20px;
-    .btn {
+    justify-content: space-between;
+    margin-bottom: 30px;
+    .box {
+      display: flex;
+      align-items: center;
+    }
+    .left {
+      margin-left: 40px;
+    }
+    .right {
       margin-right: 40px;
     }
-  }
-  .left8 {
-    margin-left: 80px;
-  }
-  .left4 {
-    margin-left: 40px;
   }
   .content {
     ::v-deep .el-tabs__item {
       font-size: 16px;
+    }
+    ::v-deep .el-tabs__header {
+      margin: 0 0 5px;
     }
     .normal {
       border: none;
@@ -1015,8 +1097,7 @@ export default {
   }
   .ipt {
     display: flex;
-    align-content: center;
-    justify-content: center;
+    align-items: center;
     padding: 20px 0 10px;
     span {
       font-size: 15px;

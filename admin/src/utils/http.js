@@ -27,8 +27,8 @@ http.interceptors.response.use(
       switch (response.data.code) {
         case 0:
           return response.data;
-        case 1003:
-          Message("请重新登录");
+        case 3000:
+          Message("token过期，请重新登录");
           localStorage.clear();
           router.push({ name: "login" });
           break;

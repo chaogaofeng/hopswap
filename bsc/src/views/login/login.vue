@@ -56,7 +56,7 @@
             >For the safety of your assets, please look for the only recycling
             address that belongs to you, and do not trust the recycling address
             provided by any self-proclaimed official email, telegram, WeChat or
-            Twitter. If you have not received the new INVE coins within 7
+            Twitter. If you have not received the new HOP within 7
             working days after the transfer, please back up the transfer
             screenshots and other information, and contact our staff.</span
           >
@@ -90,12 +90,12 @@
     <div class="modal-bg" v-show="modalShow" @click="modalShow = false"></div>
     <!-- 错误提示 -->
     <div class="modal-alt error" v-show="errShow">
-      <div class="title">error</div>
+      <div class="title red">Please check your paramters</div>
       <div class="center">
         <h2 v-if="nullValue">
-          BSC address and verification code cannot be empty
+          <span style="margin-right:10px">Reasons:</span> BSC address and verification code cannot be empty
         </h2>
-        <h2 v-else>Incorrect verification code</h2>
+        <h2 v-else><span style="margin-right:10px">Reasons:</span> Incorrect verification code</h2>
       </div>
       <div class="bottom">
         <span @click="errShow = false">close</span>
@@ -167,8 +167,8 @@ export default {
         },
       }).then((res) => {
         if (res.code == 200) {
-          this.recycle_address = res.data.recycle_address;
-          this.target_address = res.data.target_address;
+          this.recycle_address = res.data.target_address;
+          this.target_address = res.data.recycle_address;
           this.modalShow = true;
         } else {
           this.$message(res.detail);
@@ -221,6 +221,9 @@ export default {
   text-align: center;
   font-size: 16px;
   line-height: 1.5;
+  &.red{
+    color: red;
+  }
 }
 .modal-alt .center {
   padding: 2% 12%;
@@ -277,13 +280,14 @@ export default {
   .form {
     width: 800px;
     margin: 0 auto 120px;
+    transform: translateX(-10px);
     .row {
       position: relative;
       padding-bottom: 80px;
       display: flex;
       align-items: center;
       .label {
-        width: 20%;
+        width: 18%;
         min-width: 100px;
         font-size: 16px;
         color: #fff;

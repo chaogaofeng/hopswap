@@ -57,9 +57,16 @@
                 <el-table-column
                   sortable
                   :sort-by="['height']"
-                  label="交易数量"
+                  label="区块高度"
                 >
                   <template slot-scope="scope">{{ scope.row.height }}</template>
+                </el-table-column>
+                 <el-table-column
+                  sortable
+                  :sort-by="['value']"
+                  label="交易数量"
+                >
+                  <template slot-scope="scope">{{ scope.row.value }}</template>
                 </el-table-column>
                 <el-table-column label="交易哈希">
                   <template slot-scope="scope">
@@ -137,9 +144,16 @@
                 <el-table-column
                   sortable
                   :sort-by="['height']"
-                  label="交易数量"
+                  label="区块高度"
                 >
                   <template slot-scope="scope">{{ scope.row.height }}</template>
+                </el-table-column>
+                 <el-table-column
+                  sortable
+                  :sort-by="['value']"
+                  label="交易数量"
+                >
+                  <template slot-scope="scope">{{ scope.row.value }}</template>
                 </el-table-column>
                 <el-table-column label="交易哈希">
                   <template slot-scope="scope">
@@ -217,9 +231,16 @@
                 <el-table-column
                   sortable
                   :sort-by="['height']"
-                  label="交易数量"
+                  label="区块高度"
                 >
                   <template slot-scope="scope">{{ scope.row.height }}</template>
+                </el-table-column>
+                 <el-table-column
+                  sortable
+                  :sort-by="['value']"
+                  label="交易数量"
+                >
+                  <template slot-scope="scope">{{ scope.row.value }}</template>
                 </el-table-column>
                 <el-table-column label="交易哈希">
                   <template slot-scope="scope">
@@ -408,6 +429,9 @@ export default {
   .content {
     ::v-deep .el-tabs__item {
       font-size: 16px;
+    }
+     ::v-deep .el-tabs__header {
+      margin: 0 0 5px;
     }
     .normal {
       border: none;
