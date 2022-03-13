@@ -2,7 +2,7 @@ import axios from "axios";
 import { Message } from "element-ui";
 import router from "@/router";
 let http = axios.create({
-  baseURL: "http://152.32.210.47:8083",
+  baseURL: '/api',
   timeout: 10000,
 });
 

@@ -56,9 +56,9 @@
             >For the safety of your assets, please look for the only recycling
             address that belongs to you, and do not trust the recycling address
             provided by any self-proclaimed official email, telegram, WeChat or
-            Twitter. If you have not received the new HOP within 7
-            working days after the transfer, please back up the transfer
-            screenshots and other information, and contact our staff.</span
+            Twitter. If you have not received the new HOP within 7 working days
+            after the transfer, please back up the transfer screenshots and
+            other information, and contact our staff.</span
           >
         </div>
       </div>
@@ -93,9 +93,13 @@
       <div class="title red">Please check your paramters</div>
       <div class="center">
         <h2 v-if="nullValue">
-          <span style="margin-right:10px">Reasons:</span> BSC address and verification code cannot be empty
+          <span style="margin-right: 10px">Reasons:</span> BSC address and
+          verification code cannot be empty
         </h2>
-        <h2 v-else><span style="margin-right:10px">Reasons:</span> Incorrect verification code</h2>
+        <h2 v-else>
+          <span style="margin-right: 10px">Reasons:</span> Incorrect
+          verification code
+        </h2>
       </div>
       <div class="bottom">
         <span @click="errShow = false">close</span>
@@ -106,7 +110,7 @@
 </template>
 
 <script>
-import { baseUrl, api } from "@/api/api";
+import { api } from "@/api/api";
 import HeaderTitle from "@/components/HeaderTitle.vue";
 import Identify from "@/components/Identity.vue";
 export default {
@@ -130,7 +134,7 @@ export default {
   },
   created() {
     this.handleRefreshCode();
-    this.downloadUrl = baseUrl + "/file/hop-eth-bsc-swap.pdf";
+    this.downloadUrl = "/api/file/hop-eth-bsc-swap.pdf";
   },
   methods: {
     handleRefreshCode() {
@@ -221,7 +225,7 @@ export default {
   text-align: center;
   font-size: 16px;
   line-height: 1.5;
-  &.red{
+  &.red {
     color: red;
   }
 }

@@ -1,9 +1,8 @@
 import axios from "axios";
 import { Message } from "element-ui";
 import router from "@/router";
-import { baseUrl } from '@/api/api'
 let http = axios.create({
-  baseURL: baseUrl,
+  baseURL: '/api',
   timeout: 10000,
 });
 

@@ -581,9 +581,9 @@ export default {
     window.removeEventListener("click", this.clickOther);
   },
   methods: {
-    numChange(e){
-      if(Number(e)>=this.exchangeData.left_target_amount){
-        this.exchangeNum = this.exchangeData.left_target_amount
+    numChange(e) {
+      if (Number(e) >= this.exchangeData.left_target_amount) {
+        this.exchangeNum = this.exchangeData.left_target_amount;
       }
     },
     clickOther() {
@@ -629,7 +629,7 @@ export default {
         await Promise.all([this.getInfo(), this.address()]);
         this.autoSto = setTimeout(() => {
           this.autoRefrush();
-        }, 4000);
+        }, 5000);
       } else {
         clearTimeout(this.autoSto);
         this.autoSto = null;
