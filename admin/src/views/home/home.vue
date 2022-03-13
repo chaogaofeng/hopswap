@@ -72,6 +72,7 @@
                 v-loading="tableLoading"
                 :data="tables"
                 @selection-change="selection"
+                @filter-change="handleFilterChange"
                 :header-cell-style="{
                   background: '#f5f5f5',
                   color: '#000',
@@ -140,7 +141,18 @@
                     scope.row.target_amount
                   }}</template>
                 </el-table-column>
-                <el-table-column label="状态">
+                <el-table-column
+                  prop="status"
+                  column-key="status"
+                  label="状态"
+                  :filters="[
+                    { text: '已提交', value: 1 },
+                    { text: '未完成', value: 2 },
+                    { text: '已完成', value: 3 },
+                    { text: '未提交', value: 4 },
+                  ]"
+                  :filter-multiple="false"
+                >
                   <template slot-scope="scope">
                     <span v-if="scope.row.status == 1">已提交</span>
                     <span v-if="scope.row.status == 2">未完成</span>
@@ -189,6 +201,7 @@
                 v-loading="tableLoading"
                 :data="tables"
                 @selection-change="selection"
+                @filter-change="handleFilterChange"
                 :header-cell-style="{
                   background: '#f5f5f5',
                   color: '#000',
@@ -257,7 +270,18 @@
                     scope.row.target_amount
                   }}</template>
                 </el-table-column>
-                <el-table-column label="状态">
+                <el-table-column
+                  prop="status"
+                  column-key="status"
+                  label="状态"
+                  :filters="[
+                    { text: '已提交', value: 1 },
+                    { text: '未完成', value: 2 },
+                    { text: '已完成', value: 3 },
+                    { text: '未提交', value: 4 },
+                  ]"
+                  :filter-multiple="false"
+                >
                   <template slot-scope="scope">
                     <span v-if="scope.row.status == 1">已提交</span>
                     <span v-if="scope.row.status == 2">未完成</span>
@@ -555,14 +579,14 @@ export default {
       itvFlag: true, //定时器开关
       sto: null, //定时器
       autoSto: null, //自动定时器
-      aaa: 333,
+      status: "", //状态过滤
     };
   },
   components: {
     HeaderTitle,
   },
   created() {
-    this.uploadUrl = `http://152.32.210.47:8083${api.upload}?decimal=true`;
+    this.uploadUrl = `/api${api.upload}?decimal=true`;
     this.uploadHeaders = {
       authorization: localStorage.token,
     };
@@ -581,9 +605,16 @@ export default {
     window.removeEventListener("click", this.clickOther);
   },
   methods: {
+    handleFilterChange(value) {
+      this.status = value.status[0];
+      this.blackPageNo = 1;
+      this.whitePageNo = 1;
+      this.tableLoading = true;
+      this.address();
+    },
     numChange(e) {
-      if (Number(e) >= this.exchangeData.left_target_amount) {
-        this.exchangeNum = this.exchangeData.left_target_amount;
+      if (Number(e) >= this.exchangeData.left_target_amount_2) {
+        this.exchangeNum = this.exchangeData.left_target_amount_2;
       }
     },
     clickOther() {
@@ -668,6 +699,7 @@ export default {
             page_num: page_num,
             page_size: pageSize,
             disable: this.disable,
+            status: this.status,
           },
         }).then((rel) => {
           this.tableLoading = false;
@@ -698,7 +730,7 @@ export default {
     },
     exchange(e) {
       this.exchangeData = e;
-      this.exchangeNum = e.left_target_amount;
+      this.exchangeNum = e.left_target_amount_2;
       this.exchangeFlag = true;
     },
     airdropSubmit() {
@@ -909,6 +941,7 @@ export default {
       });
     },
     handleClick(tab) {
+      this.status = "";
       this.tableLoading = true;
       this.activeName = tab.name;
       if (tab.name == "black") {
